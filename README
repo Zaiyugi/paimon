@@ -1,0 +1,90 @@
+
+-------------------------------------------------------
+Paimon: An Eulerian fluid solver with CUDA acceleration
+-------------------------------------------------------
+
+Copyright (C) 2018 Zachary E. Shore
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or 
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+--------------------------
+--- Contact the author ---
+--------------------------
+
+Name: Zachary Shore
+Email: zshore@g.clemson.edu
+
+--------------------
+--- Requirements ---
+--------------------
+
+- CUDA Toolkit
+Paimon expects the CUDA Toolkit to be installed in /usr/local/cuda
+If your installation is found elsewhere then change CUDALIB inside
+the Makefile to reflect the installation directory.
+
+- CUDA SDK
+The CUDA kernels used by Paimon rely on some of the headers from the
+examples packaged with the CUDA SDK. By default, Paimon expects these
+examples to be found in /usr/local/cuda/samples/common/inc. If your 
+installation differs, update INC_CUDA in the Makefile to reflect this.
+
+-----------------------------
+--- Compiling with Paimon ---
+-----------------------------
+
+Compiling with Paimon is a two-step process. First, once the above is in
+place, cd to paimon/ and compile Paimon with 'make'. This will compile
+Paimon to a static library in lib/libPaimon.a
+
+Second, you will need to include the headers and link to Paimon. If using
+a Makefile and the Paimon directory is at the top of your project, 
+I suggest defining the following somewhere in your project's Makefile:
+
+LIB_CUDA = -L/usr/local/cuda/lib64 -lcudart
+INC_PAIMON = -I<project path>/paimon/include
+LIB_PAIMON = -L<project path>/paimon/lib -lPaimon
+
+Then the compilation for your project might look something like this:
+
+g++ <cflags> <includes> $(INC_PAIMON) main.cpp <libs> $(LIB_PAIMON) $(LIB_CUDA) <more libs -o ./run
+
+Order is important. Make sure the headers come before the source files.
+LIB_PAIMON MUST COME BEFORE LIB_CUDA. Otherwise you will get nasty linker
+errors. 
+
+You should only need to include CFDSolver.h to use the fluid solver. Paimon 
+is set up so that you do not need to compile with nvcc if you just include 
+CFDSolver.h in your project. If you start including headers that rely on 
+cuda.h, then you should either reconsider what you're trying to do, or 
+you will need to use nvcc for compilation. That has its own set of problems.
+
+-------------------------------
+--- Warning from the author ---
+-------------------------------
+
+While I tried to ensure Paimon worked cleanly, adding CUDA to a project
+can add some amount of frustration. I tried to safeguard CFDSolver so that
+it should play nice. However, there may still be some odd bugs here or there.
+Feel free to contact the author with questions or if you find a bug.
+
+Altering the kernels/graphics without at least a modicum of knowledge of 
+GPGPU/graphics programming can lead to some pretty bizarre and frustrating 
+results.
+
+You are free to change Paimon as you wish, but please attribute the author
+as required by GPLv3 or later. 
+
+Good luck and godspeed~
+
